@@ -10,7 +10,8 @@ assemblyMergeStrategy in assembly := {
 }
 
 libraryDependencies ++= Seq(
-  "org.apache.hadoop" % "hadoop-client" % "2.8.1",
+  "org.apache.hadoop" % "hadoop-client" % "3.1.0",
+  "ch.qos.logback" % "logback-classic" % "1.1.3" % Runtime,
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
   "org.mockito" % "mockito-core" % "2.8.47" % Test
 )

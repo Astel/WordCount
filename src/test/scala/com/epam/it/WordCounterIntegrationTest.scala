@@ -9,7 +9,7 @@ import scala.io.Source
 
 class WordCounterIntegrationTest extends FlatSpec with Matchers with BeforeAndAfterEach {
   "WordCount" should "write out word counts to output folder" in {
-    WordCounter.main(Array())
+    WordCounter.main(Array("input", "output"))
 
     val output = Source.fromFile("output/part-r-00000").mkString
 
@@ -22,8 +22,15 @@ class WordCounterIntegrationTest extends FlatSpec with Matchers with BeforeAndAf
          |""".stripMargin)
   }
 
-  override def afterEach = {
+  override def beforeEach(): Unit = {
+    val fs = FileSystem.get(new Configuration())
+    val inputPath = new Path(getClass.getResource("/testData.txt").getPath)
+    fs.copyFromLocalFile(inputPath, new Path("input"))
+  }
+
+  override def afterEach: Unit = {
     val fs = FileSystem.get(new Configuration())
     fs.delete(new Path("output"), true)
+    fs.delete(new Path("input"), true)
   }
 }
