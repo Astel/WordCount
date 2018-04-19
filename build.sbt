@@ -10,8 +10,7 @@ assemblyMergeStrategy in assembly := {
 }
 
 libraryDependencies ++= Seq(
-  "org.apache.hadoop" % "hadoop-core" % "1.2.1",
-  "org.scalactic" %% "scalactic" % "3.0.1",
-  "org.scalatest" %% "scalatest" % "3.0.1" % "test",
-  "org.scalamock" %% "scalamock-scalatest-support" % "3.5.0"
+  "org.apache.hadoop" % "hadoop-client" % "2.8.1",
+  "org.scalatest" %% "scalatest" % "3.0.1" % Test,
+  "org.mockito" % "mockito-core" % "2.8.47" % Test
 )
