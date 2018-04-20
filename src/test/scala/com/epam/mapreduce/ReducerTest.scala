@@ -8,7 +8,7 @@ import org.scalatest.mockito.MockitoSugar
 import scala.collection.JavaConverters._
 
 class ReducerTest extends FlatSpec with MockitoSugar {
-  "reduce" should "output the word and the sum of its occurrences" in {
+  it should "output the word and the sum of its occurrences" in {
     val reducer = new WordCountReducer
     val context = mock[reducer.Context]
 

@@ -1,12 +1,12 @@
 package com.epam.mapreduce
 
+import com.epam.comparator.TextLengthComparator
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.{IntWritable, Text}
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import org.apache.hadoop.mapreduce.Job
-import com.epam.compatator.TextLengthComparator
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat
 
 /*

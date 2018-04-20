@@ -1,4 +1,4 @@
-package com.epam.compatator
+package com.epam.comparator
 
 import org.apache.hadoop.io.{Text, WritableComparable, WritableComparator}
 

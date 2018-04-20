@@ -1,6 +1,6 @@
 package com.epam.it
 
-import com.epam.compatator.TextLengthComparator
+import com.epam.comparator.TextLengthComparator
 import com.epam.mapreduce.{WordCountMapper, WordCountReducer, WordCounter}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
