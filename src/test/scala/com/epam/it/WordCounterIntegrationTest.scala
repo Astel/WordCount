@@ -1,25 +1,98 @@
 package com.epam.it
 
-import com.epam.mapreduce.WordCounter
+import com.epam.compatator.TextLengthComparator
+import com.epam.mapreduce.{WordCountMapper, WordCountReducer, WordCounter}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.hadoop.io.SequenceFile.Reader
+import org.apache.hadoop.io.{IntWritable, SequenceFile, Text}
+import org.apache.hadoop.mapreduce.Job
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
+import org.apache.hadoop.mapreduce.lib.output.{FileOutputFormat, SequenceFileOutputFormat}
 import org.scalatest._
 
-import scala.io.Source
+class WordCounterIntegrationTest extends FlatSpec with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
+  it should "write out word counts to output folder" in {
+    WordCounter.main(Array("input", "output"))
+    val outputFilePath = new Path("output/part-r-00000")
+    val output = new StringBuilder("")
+    val reader = new SequenceFile.Reader(new Configuration(), Reader.file(outputFilePath))
 
-class WordCounterIntegrationTest extends FlatSpec with Matchers with BeforeAndAfterEach {
-  "WordCount" should "write out word counts to output folder" in {
+    val key = new Text()
+    val value = new IntWritable()
+
+    while ( {
+      reader.next(key, value)
+    }) output.append(key + "\t" + value + "\n")
+
+    output.mkString should equal(
+      """|Goodbye	1
+         |Hadoop	2
+         |Hello	4
+         |Bye	1
+         |""".stripMargin)
+  }
+
+  it should "longest word should be first at file and correct" in {
     WordCounter.main(Array("input", "output"))
 
-    val output = Source.fromFile("output/part-r-00000").mkString
+    val outputFilePath = new Path("output/part-r-00000")
 
-    output should equal(
-      """|Bye	1
-         |Goodbye	1
+    val reader = new SequenceFile.Reader(new Configuration(), Reader.file(outputFilePath))
+
+    val key = new Text()
+    val value = new IntWritable()
+
+    reader.next(key, value)
+    val output = key.toString
+
+    output shouldBe "Goodbye"
+  }
+
+  it should "correct use combiner" in {
+    val configuration = new Configuration
+
+    val job = Job.getInstance(configuration,"word count")
+    job.setJarByClass(WordCounter.getClass)
+    job.setMapperClass(classOf[WordCountMapper])
+    job.setCombinerClass(classOf[WordCountReducer])
+
+    job.setOutputKeyClass(classOf[Text])
+    job.setOutputValueClass(classOf[IntWritable])
+
+    job.setSortComparatorClass(classOf[TextLengthComparator])
+
+    FileInputFormat.addInputPath(job, new Path("input"))
+    FileOutputFormat.setOutputPath(job, new Path("output"))
+
+    job.setOutputFormatClass(classOf[SequenceFileOutputFormat[IntWritable, Text]])
+
+    val result = job.waitForCompletion(true)
+
+    val outputFilePath = new Path("output/part-r-00000")
+    val output = new StringBuilder("")
+    val reader = new SequenceFile.Reader(new Configuration(), Reader.file(outputFilePath))
+
+    val key = new Text()
+    val value = new IntWritable()
+
+    while ( {
+      reader.next(key, value)
+    }) output.append(key + "\t" + value + "\n")
+
+    output.mkString should equal(
+      """|Goodbye	1
          |Hadoop	2
-         |Hello	2
-         |World	2
+         |Hello	4
+         |Bye	1
          |""".stripMargin)
+
+    result shouldBe true
+  }
+
+  override def beforeAll(): Unit = {
+    System.setProperty("hadoop.home.dir", "/")
+    clearFileSystem
   }
 
   override def beforeEach(): Unit = {
@@ -29,6 +102,10 @@ class WordCounterIntegrationTest extends FlatSpec with Matchers with BeforeAndAf
   }
 
   override def afterEach: Unit = {
+    clearFileSystem
+  }
+
+  private def clearFileSystem = {
     val fs = FileSystem.get(new Configuration())
     fs.delete(new Path("output"), true)
     fs.delete(new Path("input"), true)
