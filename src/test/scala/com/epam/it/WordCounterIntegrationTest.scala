@@ -1,6 +1,6 @@
 package com.epam.it
 
-import com.epam.comparator.TextLengthComparator
+import com.epam.comparator.LengthComparator
 import com.epam.mapreduce.{WordCountMapper, WordCountReducer, WordCounter}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -18,35 +18,14 @@ class WordCounterIntegrationTest extends FlatSpec with Matchers with BeforeAndAf
     val output = new StringBuilder("")
     val reader = new SequenceFile.Reader(new Configuration(), Reader.file(outputFilePath))
 
-    val key = new Text()
-    val value = new IntWritable()
+    val key = new IntWritable()
+    val value = new Text()
 
     while ( {
       reader.next(key, value)
-    }) output.append(key + "\t" + value + "\n")
+    }) output.append(key + "\t" + value)
 
-    output.mkString should equal(
-      """|Goodbye	1
-         |Hadoop	2
-         |Hello	4
-         |Bye	1
-         |""".stripMargin)
-  }
-
-  it should "longest word should be first at file and correct" in {
-    WordCounter.main(Array("input", "output"))
-
-    val outputFilePath = new Path("output/part-r-00000")
-
-    val reader = new SequenceFile.Reader(new Configuration(), Reader.file(outputFilePath))
-
-    val key = new Text()
-    val value = new IntWritable()
-
-    reader.next(key, value)
-    val output = key.toString
-
-    output shouldBe "Goodbye"
+    output.mkString shouldEqual "7	Hadooop Goodbye"
   }
 
   it should "correct use combiner" in {
@@ -57,10 +36,10 @@ class WordCounterIntegrationTest extends FlatSpec with Matchers with BeforeAndAf
     job.setMapperClass(classOf[WordCountMapper])
     job.setCombinerClass(classOf[WordCountReducer])
 
-    job.setOutputKeyClass(classOf[Text])
-    job.setOutputValueClass(classOf[IntWritable])
+    job.setOutputKeyClass(classOf[IntWritable])
+    job.setOutputValueClass(classOf[Text])
 
-    job.setSortComparatorClass(classOf[TextLengthComparator])
+    job.setSortComparatorClass(classOf[LengthComparator])
 
     FileInputFormat.addInputPath(job, new Path("input"))
     FileOutputFormat.setOutputPath(job, new Path("output"))
@@ -73,21 +52,14 @@ class WordCounterIntegrationTest extends FlatSpec with Matchers with BeforeAndAf
     val output = new StringBuilder("")
     val reader = new SequenceFile.Reader(new Configuration(), Reader.file(outputFilePath))
 
-    val key = new Text()
-    val value = new IntWritable()
+    val key = new IntWritable()
+    val value = new Text()
 
     while ( {
       reader.next(key, value)
-    }) output.append(key + "\t" + value + "\n")
+    }) output.append(key + "\t" + value)
 
-    output.mkString should equal(
-      """|Goodbye	1
-         |Hadoop	2
-         |Hello	4
-         |Bye	1
-         |""".stripMargin)
-
-    result shouldBe true
+    output.mkString should equal("7\tHadooop Goodbye")
   }
 
   override def beforeAll(): Unit = {

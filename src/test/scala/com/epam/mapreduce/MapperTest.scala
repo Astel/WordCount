@@ -8,7 +8,6 @@ import org.scalatest.mockito.MockitoSugar
 import org.apache.hadoop.mapreduce.Counter
 
 class MapperTest extends FlatSpec with MockitoSugar {
-  val one = new IntWritable(1)
 
   it should "output the words split on spaces" in {
     val mapper = new WordCountMapper
@@ -23,8 +22,8 @@ class MapperTest extends FlatSpec with MockitoSugar {
       context
     )
 
-    verify(context, times(2)).write(new Text("foo"), one)
-    verify(context).write(new Text("bar"), one)
+    verify(context, times(2)).write(new IntWritable(3), new Text("foo"))
+    verify(context).write(new IntWritable(3), new Text("bar"))
     verify(counter, times(3)).increment(1)
   }
 
@@ -41,11 +40,9 @@ class MapperTest extends FlatSpec with MockitoSugar {
       context
     )
 
-    verify(context, times(2)).write(new Text("foo"), one)
-    verify(context).write(new Text("bar"), one)
+    verify(context, times(2)).write(new IntWritable(3), new Text("foo"))
+    verify(context).write(new IntWritable(3), new Text("bar"))
     verify(counter, times(3)).increment(1)
   }
-
-
 }
 

@@ -5,11 +5,11 @@ import org.apache.hadoop.mapreduce.Mapper
 
 import com.epam.counters.Counters
 
-class WordCountMapper extends Mapper[LongWritable, Text, Text, IntWritable] {
+class WordCountMapper extends Mapper[LongWritable, Text, IntWritable, Text] {
   override def map(
       key: LongWritable,
       value: Text,
-      context: Mapper[LongWritable, Text, Text, IntWritable]#Context): Unit = {
+      context: Mapper[LongWritable, Text, IntWritable, Text]#Context): Unit = {
 
     //split by spaces
     val words = value.toString.split("\\s+")
@@ -21,8 +21,8 @@ class WordCountMapper extends Mapper[LongWritable, Text, Text, IntWritable] {
       .map(word => word.replaceAll("[^A-Za-z0-9-]", ""))
       .foreach(word => {
         inputWordsCounter.increment(1)
-        val key = new Text(word)
-        val value = one
+        val key = new IntWritable(word.length)
+        val value = new Text(word)
         context.write(key, value)
       })
   }

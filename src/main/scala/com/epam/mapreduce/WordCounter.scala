@@ -1,6 +1,6 @@
 package com.epam.mapreduce
 
-import com.epam.comparator.TextLengthComparator
+import com.epam.comparator.LengthComparator
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.{IntWritable, Text}
@@ -22,10 +22,10 @@ object WordCounter {
     job.setCombinerClass(classOf[WordCountReducer])
     job.setReducerClass(classOf[WordCountReducer])
 
-    job.setOutputKeyClass(classOf[Text])
-    job.setOutputValueClass(classOf[IntWritable])
+    job.setOutputKeyClass(classOf[IntWritable])
+    job.setOutputValueClass(classOf[Text])
 
-    job.setSortComparatorClass(classOf[TextLengthComparator])
+    job.setSortComparatorClass(classOf[LengthComparator])
 
     FileInputFormat.addInputPath(job, new Path(args(0)))
 

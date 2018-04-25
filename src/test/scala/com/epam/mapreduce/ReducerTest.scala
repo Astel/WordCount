@@ -13,11 +13,11 @@ class ReducerTest extends FlatSpec with MockitoSugar {
     val context = mock[reducer.Context]
 
     reducer.reduce(
-      key = new Text("one"),
-      values = Seq(new IntWritable(1), new IntWritable(1)).asJava,
+      key = new IntWritable(1),
+      values = Seq(new Text("a"), new Text("b"), new Text("c")).asJava,
       context
     )
 
-    verify(context).write(new Text("one"), new IntWritable(2))
+    verify(context).write(new IntWritable(1), new Text("a b c"))
   }
 }
